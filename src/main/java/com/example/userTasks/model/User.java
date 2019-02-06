@@ -15,6 +15,10 @@ public class User {
     private String email;
     private Status status;
 
+    public User() {
+        this.status = Status.Offline;
+    }
+
     @OneToMany(targetEntity = Task.class, mappedBy = "id", orphanRemoval = false, fetch = FetchType.LAZY)
     private Set<Task> tasks;
 
