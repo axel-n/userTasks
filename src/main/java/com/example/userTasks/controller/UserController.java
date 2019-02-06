@@ -5,10 +5,7 @@ import com.example.userTasks.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -16,6 +13,8 @@ import java.util.List;
 public class UserController {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
+    private final String ONLINE = "online";
+    private final String OFFLINE = "offline";
 
     @Autowired
     private UserRepository userRepository;
@@ -50,5 +49,38 @@ public class UserController {
         log.info("get new user data. email: {}, username: {}", user.getEmail(), user.getUsername());
 
         return userRepository.save(user);
+    }
+
+    @PutMapping(value = "/user/{id}")
+    public User updateUserStatus(@PathVariable int id, final String statusString) {
+
+        log.info("try update status {} for userId {}", statusString, id);
+        User user = userRepository.findById(id);
+        if (user != null) {
+            log.info("found user for id: {}", id);
+
+            User.Status status = convertStatus(statusString);
+
+            if (status != null) {
+                user.setStatus(status);
+                userRepository.save(user);
+            } else {
+                log.info("status: {} not valid", statusString);
+            }
+        } else {
+            log.info("not found user for id: {}", id);
+        }
+
+        return user;
+    }
+
+    private User.Status convertStatus(String status) {
+
+        status = status.toLowerCase();
+
+        if (status.equals(ONLINE)) return User.Status.Online;
+        if (status.equals(OFFLINE)) return User.Status.Offline;
+
+        return null;
     }
 }
