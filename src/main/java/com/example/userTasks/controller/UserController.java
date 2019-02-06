@@ -1,7 +1,9 @@
 package com.example.userTasks.controller;
 
 import com.example.userTasks.model.User;
+import com.example.userTasks.repository.TaskRepository;
 import com.example.userTasks.repository.UserRepository;
+import com.example.userTasks.service.PutTaskForUsers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,12 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private TaskRepository taskRepository;
+
+    @Autowired
+    private PutTaskForUsers putTaskForUsers;
 
     @GetMapping(value = "/user/all")
     public List<User> getAllTasks() {
@@ -44,7 +52,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/user")
-    public User addLink(final User user) {
+    public User addUser(final User user) {
 
         log.info("get new user data. email: {}, username: {}", user.getEmail(), user.getUsername());
 
@@ -62,8 +70,13 @@ public class UserController {
             User.Status userStatus = convertStatus(status);
 
             if (status != null) {
+
                 user.setStatus(userStatus);
                 userRepository.save(user);
+
+                if (userStatus == User.Status.Offline) {
+                    assignUserTasksToAnotherUsers(user.getId());
+                }
             } else {
                 log.info("status: {} not valid", status);
             }
@@ -72,6 +85,12 @@ public class UserController {
         }
 
         return user;
+    }
+
+    private void assignUserTasksToAnotherUsers(int id) {
+
+        putTaskForUsers.putTasks(id);
+
     }
 
     private User.Status convertStatus(String status) {
@@ -83,4 +102,6 @@ public class UserController {
 
         return null;
     }
+
+
 }
