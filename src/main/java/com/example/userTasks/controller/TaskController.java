@@ -33,7 +33,7 @@ public class TaskController {
 
         User user = userRepository.findById(userId);
 
-        if (user != null) return user.getTasks();
+        if (user != null) return taskRepository.findByUserId(userId);
         else {
             log.info("user not found for user id: {}", userId);
         }
@@ -56,17 +56,18 @@ public class TaskController {
     }
 
     @PutMapping(value = "/task/{taskId}")
-    public Task updateUserByTask(@PathVariable int taskId, final int userId) {
+    public Task setUserByTask(@PathVariable int taskId, final int userId) {
 
-        log.info("try update userId {} for task {}", taskId, userId);
+        log.info("try update userId {} for task {}", userId, taskId);
         Task task = taskRepository.findById(taskId);
         User user = userRepository.findById(userId);
 
         if (task != null && user != null && user.getStatus() == User.Status.Online) {
             log.info("found task for id: {}", taskId);
 
-            task.setUser(user);
-            taskRepository.save(task);
+            task.setUserId(user.getId());
+            task = taskRepository.save(task);
+            log.info("updated task: {}", task);
 
         } else {
             log.info("not found user (online) for id: {} or task for id: {}", userId, taskId);

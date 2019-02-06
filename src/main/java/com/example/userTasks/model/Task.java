@@ -1,8 +1,5 @@
 package com.example.userTasks.model;
 
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-
 import javax.persistence.*;
 
 @Entity
@@ -15,10 +12,7 @@ public class Task {
 
     private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(insertable = false, updatable = false)
-    @Fetch(FetchMode.JOIN)
-    private User user;
+    private int userId;
 
     public String getName() {
         return name;
@@ -32,21 +26,21 @@ public class Task {
         return id;
     }
 
-    public User getUser() {
-        return user;
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public int getUserId() {
+        return userId;
     }
 
     @Override
     public String toString() {
         return String.format("{id: %s,name: %s, user: %s}",
-                id, name, user);
-    }
-
-    public void setId(int id) {
-        this.id = id;
+                id, name, userId);
     }
 }
+
+
+
+

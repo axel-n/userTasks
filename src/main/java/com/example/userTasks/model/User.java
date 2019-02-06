@@ -1,7 +1,6 @@
 package com.example.userTasks.model;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -18,9 +17,6 @@ public class User {
     public User() {
         this.status = Status.Offline;
     }
-
-    @OneToMany(targetEntity = Task.class, mappedBy = "user", orphanRemoval = false, fetch = FetchType.LAZY)
-    private List<Task> tasks;
 
     public String getUsername() {
         return username;
@@ -48,10 +44,6 @@ public class User {
 
     public void setStatus(Status status) {
         this.status = status;
-    }
-
-    public List<Task> getTasks() {
-        return tasks;
     }
 
     public void setId(int id) {
