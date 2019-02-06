@@ -6,7 +6,7 @@ import org.hibernate.annotations.FetchMode;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "users")
+@Table(name = "tasks")
 public class Task {
 
     @Id
@@ -28,11 +28,25 @@ public class Task {
         this.name = name;
     }
 
+    public int getId() {
+        return id;
+    }
+
     public User getUser() {
         return user;
     }
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("{id: %s,name: %s, user: %s}",
+                id, name, user);
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

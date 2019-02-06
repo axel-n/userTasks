@@ -1,7 +1,7 @@
 package com.example.userTasks.model;
 
 import javax.persistence.*;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -19,11 +19,8 @@ public class User {
         this.status = Status.Offline;
     }
 
-    @OneToMany(targetEntity = Task.class, mappedBy = "id", orphanRemoval = false, fetch = FetchType.LAZY)
-    private Set<Task> tasks;
-
-    @Transient
-    private final String DEFAULT_ROLE = "ROLE_USER";
+    @OneToMany(targetEntity = Task.class, mappedBy = "user", orphanRemoval = false, fetch = FetchType.LAZY)
+    private List<Task> tasks;
 
     public String getUsername() {
         return username;
@@ -51,6 +48,14 @@ public class User {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public List<Task> getTasks() {
+        return tasks;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public enum Status {

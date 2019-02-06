@@ -52,20 +52,20 @@ public class UserController {
     }
 
     @PutMapping(value = "/user/{id}")
-    public User updateUserStatus(@PathVariable int id, final String statusString) {
+    public User updateUserStatus(@PathVariable int id, final String status) {
 
-        log.info("try update status {} for userId {}", statusString, id);
+        log.info("try update status {} for userId {}", status, id);
         User user = userRepository.findById(id);
         if (user != null) {
             log.info("found user for id: {}", id);
 
-            User.Status status = convertStatus(statusString);
+            User.Status userStatus = convertStatus(status);
 
             if (status != null) {
-                user.setStatus(status);
+                user.setStatus(userStatus);
                 userRepository.save(user);
             } else {
-                log.info("status: {} not valid", statusString);
+                log.info("status: {} not valid", status);
             }
         } else {
             log.info("not found user for id: {}", id);
