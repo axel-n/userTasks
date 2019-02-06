@@ -9,10 +9,25 @@ public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
-
     private String name;
-
     private int userId;
+    private Status status;
+
+    public Task() {
+        this.status = Status.Open;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public enum Status {
+        Open, Completed, Rejected
+    }
 
     public String getName() {
         return name;

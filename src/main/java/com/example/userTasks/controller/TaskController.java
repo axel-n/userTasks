@@ -15,6 +15,10 @@ import java.util.List;
 public class TaskController {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
+    private final String COMPLETED = "completed";
+    private final String REJECTED = "rejected";
+
+
 
     @Autowired
     private TaskRepository taskRepository;
@@ -66,13 +70,47 @@ public class TaskController {
             log.info("found task for id: {}", taskId);
 
             task.setUserId(user.getId());
-            task = taskRepository.save(task);
-            log.info("updated task: {}", task);
+            log.info("updated task: {}", taskRepository.save(task));
 
         } else {
             log.info("not found user (online) for id: {} or task for id: {}", userId, taskId);
         }
 
         return task;
+    }
+
+    @PutMapping(value = "/task/{taskId}/status")
+    public Task setStatusByTask(@PathVariable int taskId, String status) {
+
+        log.info("try update status {} for task {}", status, taskId);
+        Task task = taskRepository.findById(taskId);
+
+        if (task != null && task.getUserId() != 0) {
+
+            Task.Status taskStatus = convertStatus(status);
+
+            log.info("found task for id: {}", taskId);
+            if (taskStatus != null) {
+                task.setStatus(taskStatus);
+                log.info("updated task: {}", taskRepository.save(task));
+            } else {
+                log.info("status: {} not valid", status);
+
+            }
+        } else {
+            log.info("not found task for id: {} or assign user to task ", taskId);
+        }
+
+        return task;
+    }
+
+    private Task.Status convertStatus(String status) {
+
+        status = status.toLowerCase();
+
+        if (status.equals(COMPLETED)) return Task.Status.Completed;
+        if (status.equals(REJECTED)) return Task.Status.Rejected;
+
+        return null;
     }
 }
