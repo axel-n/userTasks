@@ -57,7 +57,7 @@
 <detail>
 <summary>1.2 Список всех задач</summary>
 
-```json
+<pre>
 [
     {
         "id": 5,
@@ -72,7 +72,7 @@
         "status": "Open"
     }
 ]
-```
+</pre>
 </details>
 
 2. Ставим статус offline пользователю 1
@@ -80,8 +80,8 @@
 
 <detail>
 <summary>3.1 Снова список всех задач</summary>
-
-```json
+Изменились правильно userId задач
+<pre>
 [
     {
         "id": 5,
@@ -96,7 +96,7 @@
         "status": "Open"
     }
 ]
-```
+</pre>
 </details>
 
 
