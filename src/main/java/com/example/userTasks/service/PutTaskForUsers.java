@@ -30,13 +30,28 @@ public class PutTaskForUsers {
     private int currentResultKey;
     private int firstElement;
 
+    /**
+     * Управляем правильным распределением задач на других пользователей
+     * Подготавливает данные в формате - количество задач и список пользователей
+     *
+     * Например, нужно положить 3 задачи.
+     * подготовили такую карту {0=[2, 3], 1=[6], 2=[4], 5=[5]}
+     * Должны получить на выходе такую карту (только изменные пользователи) {1=[2, 3], 2=[6]}
+     *
+     * @param unsignedTasks
+     * @param usersOnline
+     * @return карту с количеством задач и списком изменных пользователей.
+     */
     public TreeMap<Integer, ArrayList<Integer>> putTasks(List<Task> unsignedTasks, List<User> usersOnline) {
         int countUnsignedTask =  prepareData(unsignedTasks, usersOnline);
         fillLists(countUnsignedTask);
 
-        return countTaskPerUser;
+        return result;
     }
 
+    /**
+     * @param countTasks количество задач, которые нужно обработать
+     */
     private void fillLists(int countTasks) {
 
         for (int i = 1; i <= countTasks; i++) {
@@ -56,14 +71,21 @@ public class PutTaskForUsers {
                 result.replace(currentResultKey, nextListModUsers);
             }
         }
-        log.info("after processing unsigned tasks. receive map (changes in users): " + result);
+        log.info("после обработки неназначенных задач, получили карту (только для изменных пользователей): " + result);
     }
 
+    /**
+     * подготовка данных в обрабатываемый формат
+     *
+     * @param unsignedTasks
+     * @param usersOnline
+     * @return количество неназначенных задач
+     */
     private int prepareData(List<Task> unsignedTasks, List<User> usersOnline) {
 
         if (usersOnline.size() > 0 && unsignedTasks.size() > 0) {
-            log.info("start assign tasks to another online users.");
-            log.info("count unsigned tasks: {}, count another online users: {}",
+            log.info("начали обработку задач (пользователя, который вышел) для других пользователей (онлайн)");
+            log.info("количество неназначенных задач: {}, количество других онлайн пользователей: {}",
                     unsignedTasks.size(), usersOnline.size());
 
             for (User user : usersOnline) {
@@ -80,12 +102,15 @@ public class PutTaskForUsers {
                     countTaskPerUser.put(currentKey, new ArrayList<>(List.of(userId)));
                 }
             }
-            log.info("after prepare data, receive map tasks per user: {}", countTaskPerUser);
+            log.info("после подготовки, получили карту (количество задач и список пользователей): {}", countTaskPerUser);
         }
 
         return unsignedTasks.size();
     }
 
+    /**
+     * сохраняем текущие пары, удаляем первый элемент
+     */
     private void initStep() {
         currentCount = countTaskPerUser.firstKey();
         currentListAllUsers = countTaskPerUser.get(currentCount);

@@ -96,13 +96,35 @@ public class UserController {
         List<Task> unsignedTasks = taskRepository.findByUserId(offlineUserId);
         List<User> usersOnline = userRepository.findByStatus(User.Status.Online);
 
+        // для отслеживания какую задачу сейчас нужно назначить
+        int iteratorTasks = 0;
+
         TreeMap<Integer, ArrayList<Integer>> usersChangesMap = putTaskForUsers.putTasks(unsignedTasks, usersOnline);
 
         for (Map.Entry<Integer, ArrayList<Integer>> entry : usersChangesMap.entrySet()){
 
-            int key = entry.getKey();
+            int countTasks = entry.getKey();
             ArrayList<Integer> listChangesUsers = entry.getValue();
+
+            for (User currentUser : usersOnline) {
+
+                // TODO
+                // переписать коллекцию со списком пользователей, чтобы поиск id, занимал O(1)
+
+                // если пользователь есть в списке для обработки
+                if (listChangesUsers.contains(currentUser.getId())) {
+
+                    // добавляем текущему пользователю (онлайн) задачу пользователя (оффлайн)
+                    for (int j = 0; j < countTasks; j++) {
+                        unsignedTasks.get(iteratorTasks).setUserId(currentUser.getId());
+                        taskRepository.save(unsignedTasks.get(iteratorTasks));
+                        iteratorTasks++;
+                    }
+                }
+            }
         }
+
+        log.info("закончили название задач для других онлайн пользователей");
 
     }
 
@@ -115,6 +137,4 @@ public class UserController {
 
         return null;
     }
-
-
 }
