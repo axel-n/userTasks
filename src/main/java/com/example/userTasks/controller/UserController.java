@@ -10,10 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 @RestController
 public class UserController {
@@ -96,20 +93,19 @@ public class UserController {
         List<Task> unsignedTasks = taskRepository.findByUserId(offlineUserId);
         List<User> usersOnline = userRepository.findByStatus(User.Status.Online);
 
+        System.out.println(usersOnline);
+
         // для отслеживания какую задачу сейчас нужно назначить
         int iteratorTasks = 0;
 
-        TreeMap<Integer, ArrayList<Integer>> usersChangesMap = putTaskForUsers.putTasks(unsignedTasks, usersOnline);
+        TreeMap<Integer, HashSet<Integer>> usersChangesMap = putTaskForUsers.putTasks(unsignedTasks, usersOnline);
 
-        for (Map.Entry<Integer, ArrayList<Integer>> entry : usersChangesMap.entrySet()){
+        for (Map.Entry<Integer, HashSet<Integer>> entry : usersChangesMap.entrySet()){
 
             int countTasks = entry.getKey();
-            ArrayList<Integer> listChangesUsers = entry.getValue();
+            HashSet<Integer> listChangesUsers = entry.getValue();
 
             for (User currentUser : usersOnline) {
-
-                // TODO
-                // переписать коллекцию со списком пользователей, чтобы поиск id, занимал O(1)
 
                 // если пользователь есть в списке для обработки
                 if (listChangesUsers.contains(currentUser.getId())) {
