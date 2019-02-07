@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 
 @Service
@@ -26,9 +25,13 @@ public class PutTaskForUsers {
     private TaskRepository taskRepository;
 
     private TreeMap<Integer, ArrayList<Integer>> countTaskPerUser = new TreeMap<>();
-    private ArrayList<Integer> currentListUsers = new ArrayList<>();
-    private ArrayList<Integer> nextListUsers;
+    private TreeMap<Integer, ArrayList<Integer>> result = new TreeMap<>();
+    private ArrayList<Integer> currentListAllUsers;
+
+    private ArrayList<Integer> nextListModUsers;
+
     private int currentCount;
+    private int currentResultKey;
     private int firstElement;
 
     public TreeMap<Integer, ArrayList<Integer>> putTasks(int offlineUserId) {
@@ -47,20 +50,18 @@ public class PutTaskForUsers {
             initStep();
 
             // сохраняем текущую пару без 0 значения в списке
-            countTaskPerUser.replace(currentCount, currentListUsers);
+            countTaskPerUser.replace(currentCount, currentListAllUsers);
 
-            // если следующая пара без элементов
-            if (nextListUsers == null) {
-                countTaskPerUser.put(currentCount + 1, new ArrayList<>(List.of(firstElement)));
+            // добавляем первый элемент (который уже удалил из списка)
+            if (nextListModUsers == null) {
+                result.put(currentResultKey, new ArrayList<>(List.of(firstElement)));
             } else {
-                nextListUsers.add(firstElement);
-                countTaskPerUser.replace(currentCount + 1, nextListUsers);
+                nextListModUsers.add(firstElement);
+                result.replace(currentResultKey, nextListModUsers);
             }
         }
-        log.info("after processing unsigned tasks. receive map: " + countTaskPerUser);
-
+        log.info("after processing unsigned tasks. receive map (changes in users): " + result);
     }
-
 
     private int prepareData(int offlineUserId) {
 
@@ -93,14 +94,18 @@ public class PutTaskForUsers {
     }
 
     private void initStep() {
-        Map.Entry<Integer, ArrayList<Integer>> entry = countTaskPerUser.firstEntry();
+        currentCount = countTaskPerUser.firstKey();
+        currentListAllUsers = countTaskPerUser.get(currentCount);
 
-        // запоминаем (если есть) следующий список пользователей
-        nextListUsers = countTaskPerUser.get(currentCount + 1);
+        firstElement = currentListAllUsers.get(0);
 
-        currentListUsers = entry.getValue();
-        currentCount = entry.getKey();
-        firstElement = currentListUsers.get(0);
-        currentListUsers.remove(0);
+        if (result.firstEntry() != null) {
+            currentResultKey = countTaskPerUser.firstKey() + 1;
+        } else {
+            currentResultKey = 1;
+        }
+        nextListModUsers = result.get(currentResultKey);
+
+        currentListAllUsers.remove(0);
     }
 }
