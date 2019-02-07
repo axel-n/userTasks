@@ -1,5 +1,6 @@
 package com.example.userTasks.controller;
 
+import com.example.userTasks.model.Task;
 import com.example.userTasks.model.User;
 import com.example.userTasks.repository.TaskRepository;
 import com.example.userTasks.repository.UserRepository;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 @RestController
@@ -77,7 +79,7 @@ public class UserController {
                 userRepository.save(user);
 
                 if (userStatus == User.Status.Offline) {
-                    assignUserTasksToAnotherUsers(user.getId());
+                    assignUserTasksToAnotherUsers(id);
                 }
             } else {
                 log.info("status: {} not valid", status);
@@ -89,9 +91,18 @@ public class UserController {
         return user;
     }
 
-    private void assignUserTasksToAnotherUsers(int id) {
+    private void assignUserTasksToAnotherUsers(int offlineUserId) {
 
-        TreeMap<Integer, ArrayList<Integer>> usersChangesMap = putTaskForUsers.putTasks(id);
+        List<Task> unsignedTasks = taskRepository.findByUserId(offlineUserId);
+        List<User> usersOnline = userRepository.findByStatus(User.Status.Online);
+
+        TreeMap<Integer, ArrayList<Integer>> usersChangesMap = putTaskForUsers.putTasks(unsignedTasks, usersOnline);
+
+        for (Map.Entry<Integer, ArrayList<Integer>> entry : usersChangesMap.entrySet()){
+
+            int key = entry.getKey();
+            ArrayList<Integer> listChangesUsers = entry.getValue();
+        }
 
     }
 

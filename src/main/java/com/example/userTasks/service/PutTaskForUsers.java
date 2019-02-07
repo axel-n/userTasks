@@ -3,7 +3,6 @@ package com.example.userTasks.service;
 import com.example.userTasks.model.Task;
 import com.example.userTasks.model.User;
 import com.example.userTasks.repository.TaskRepository;
-import com.example.userTasks.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +18,6 @@ public class PutTaskForUsers {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
     private TaskRepository taskRepository;
 
     private TreeMap<Integer, ArrayList<Integer>> countTaskPerUser = new TreeMap<>();
@@ -34,8 +30,8 @@ public class PutTaskForUsers {
     private int currentResultKey;
     private int firstElement;
 
-    public TreeMap<Integer, ArrayList<Integer>> putTasks(int offlineUserId) {
-        int countUnsignedTask =  prepareData(offlineUserId);
+    public TreeMap<Integer, ArrayList<Integer>> putTasks(List<Task> unsignedTasks, List<User> usersOnline) {
+        int countUnsignedTask =  prepareData(unsignedTasks, usersOnline);
         fillLists(countUnsignedTask);
 
         return countTaskPerUser;
@@ -63,10 +59,7 @@ public class PutTaskForUsers {
         log.info("after processing unsigned tasks. receive map (changes in users): " + result);
     }
 
-    private int prepareData(int offlineUserId) {
-
-        List<Task> unsignedTasks = taskRepository.findByUserId(offlineUserId);
-        List<User> usersOnline = userRepository.findByStatus(User.Status.Online);
+    private int prepareData(List<Task> unsignedTasks, List<User> usersOnline) {
 
         if (usersOnline.size() > 0 && unsignedTasks.size() > 0) {
             log.info("start assign tasks to another online users.");
